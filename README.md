@@ -1,5 +1,7 @@
 # Welcome to your Expo app 👋
 
+[![Test](https://github.com/Mohamed0Hussein/padelo/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/Mohamed0Hussein/padelo/actions/workflows/test.yml)
+
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
 ## Get started
