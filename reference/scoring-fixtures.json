@@ -1,0 +1,530 @@
+[
+ {
+  "name": "love game",
+  "rules": {
+   "bestOf": 3,
+   "games": 6,
+   "deuce": "golden",
+   "superTb": true,
+   "tiebreak": true
+  },
+  "points": "AAAA",
+  "expect": {
+   "sets": [],
+   "games": [
+    1,
+    0
+   ],
+   "points": [
+    0,
+    0
+   ],
+   "tiebreak": false,
+   "superTiebreak": false,
+   "server": 1,
+   "winner": -1,
+   "deuceCount": 0,
+   "changeEnds": true,
+   "lastLog": "Game A",
+   "banner": "Change ends"
+  }
+ },
+ {
+  "name": "golden point decides at 40-40",
+  "rules": {
+   "bestOf": 3,
+   "games": 6,
+   "deuce": "golden",
+   "superTb": true,
+   "tiebreak": true
+  },
+  "points": "AAABBBB",
+  "expect": {
+   "sets": [],
+   "games": [
+    0,
+    1
+   ],
+   "points": [
+    0,
+    0
+   ],
+   "tiebreak": false,
+   "superTiebreak": false,
+   "server": 1,
+   "winner": -1,
+   "deuceCount": 0,
+   "changeEnds": true,
+   "lastLog": "Golden point · game B",
+   "banner": "Change ends"
+  }
+ },
+ {
+  "name": "advantage: deuce, ad, back to deuce",
+  "rules": {
+   "bestOf": 3,
+   "games": 6,
+   "deuce": "adv",
+   "superTb": true,
+   "tiebreak": true
+  },
+  "points": "AAABBBAB",
+  "expect": {
+   "sets": [],
+   "games": [
+    0,
+    0
+   ],
+   "points": [
+    3,
+    3
+   ],
+   "tiebreak": false,
+   "superTiebreak": false,
+   "server": 0,
+   "winner": -1,
+   "deuceCount": 2,
+   "changeEnds": false,
+   "lastLog": "Back to deuce",
+   "banner": "Deuce · win two points in a row"
+  }
+ },
+ {
+  "name": "advantage: win two in a row",
+  "rules": {
+   "bestOf": 3,
+   "games": 6,
+   "deuce": "adv",
+   "superTb": true,
+   "tiebreak": true
+  },
+  "points": "AAABBBAA",
+  "expect": {
+   "sets": [],
+   "games": [
+    1,
+    0
+   ],
+   "points": [
+    0,
+    0
+   ],
+   "tiebreak": false,
+   "superTiebreak": false,
+   "server": 1,
+   "winner": -1,
+   "deuceCount": 0,
+   "changeEnds": true,
+   "lastLog": "Game A",
+   "banner": "Change ends"
+  }
+ },
+ {
+  "name": "star point: third deuce becomes deciding point",
+  "rules": {
+   "bestOf": 3,
+   "games": 6,
+   "deuce": "star",
+   "superTb": true,
+   "tiebreak": true
+  },
+  "points": "AAABBBBABA",
+  "expect": {
+   "sets": [],
+   "games": [
+    0,
+    0
+   ],
+   "points": [
+    3,
+    3
+   ],
+   "tiebreak": false,
+   "superTiebreak": false,
+   "server": 0,
+   "winner": -1,
+   "deuceCount": 3,
+   "changeEnds": false,
+   "lastLog": "Back to deuce",
+   "banner": "Star point · next point wins"
+  }
+ },
+ {
+  "name": "star point: deciding point won",
+  "rules": {
+   "bestOf": 3,
+   "games": 6,
+   "deuce": "star",
+   "superTb": true,
+   "tiebreak": true
+  },
+  "points": "AAABBBBABAB",
+  "expect": {
+   "sets": [],
+   "games": [
+    0,
+    1
+   ],
+   "points": [
+    0,
+    0
+   ],
+   "tiebreak": false,
+   "superTiebreak": false,
+   "server": 1,
+   "winner": -1,
+   "deuceCount": 0,
+   "changeEnds": true,
+   "lastLog": "Star point · game B",
+   "banner": "Change ends"
+  }
+ },
+ {
+  "name": "change ends after game 1",
+  "rules": {
+   "bestOf": 3,
+   "games": 6,
+   "deuce": "golden",
+   "superTb": true,
+   "tiebreak": true
+  },
+  "points": "AAAA",
+  "expect": {
+   "sets": [],
+   "games": [
+    1,
+    0
+   ],
+   "points": [
+    0,
+    0
+   ],
+   "tiebreak": false,
+   "superTiebreak": false,
+   "server": 1,
+   "winner": -1,
+   "deuceCount": 0,
+   "changeEnds": true,
+   "lastLog": "Game A",
+   "banner": "Change ends"
+  }
+ },
+ {
+  "name": "no change of ends after game 2",
+  "rules": {
+   "bestOf": 3,
+   "games": 6,
+   "deuce": "golden",
+   "superTb": true,
+   "tiebreak": true
+  },
+  "points": "AAAABBBB",
+  "expect": {
+   "sets": [],
+   "games": [
+    1,
+    1
+   ],
+   "points": [
+    0,
+    0
+   ],
+   "tiebreak": false,
+   "superTiebreak": false,
+   "server": 0,
+   "winner": -1,
+   "deuceCount": 0,
+   "changeEnds": false,
+   "lastLog": "Game B",
+   "banner": "A serving"
+  }
+ },
+ {
+  "name": "set 6-0",
+  "rules": {
+   "bestOf": 3,
+   "games": 6,
+   "deuce": "golden",
+   "superTb": true,
+   "tiebreak": true
+  },
+  "points": "AAAAAAAAAAAAAAAAAAAAAAAA",
+  "expect": {
+   "sets": [
+    {
+     "games": [
+      6,
+      0
+     ],
+     "winner": 0,
+     "superTiebreak": false
+    }
+   ],
+   "games": [
+    0,
+    0
+   ],
+   "points": [
+    0,
+    0
+   ],
+   "tiebreak": false,
+   "superTiebreak": false,
+   "server": 0,
+   "winner": -1,
+   "deuceCount": 0,
+   "changeEnds": false,
+   "lastLog": "Set A · 6–0",
+   "banner": "A serving"
+  }
+ },
+ {
+  "name": "tiebreak starts at 6-6",
+  "rules": {
+   "bestOf": 3,
+   "games": 6,
+   "deuce": "golden",
+   "superTb": true,
+   "tiebreak": true
+  },
+  "points": "AAAABBBBAAAABBBBAAAABBBBAAAABBBBAAAABBBBAAAABBBB",
+  "expect": {
+   "sets": [],
+   "games": [
+    6,
+    6
+   ],
+   "points": [
+    0,
+    0
+   ],
+   "tiebreak": true,
+   "superTiebreak": false,
+   "server": 0,
+   "winner": -1,
+   "deuceCount": 0,
+   "changeEnds": false,
+   "lastLog": "Game B · tiebreak",
+   "banner": "Tiebreak · first to 7"
+  }
+ },
+ {
+  "name": "tiebreak won 7-5",
+  "rules": {
+   "bestOf": 3,
+   "games": 6,
+   "deuce": "golden",
+   "superTb": true,
+   "tiebreak": true
+  },
+  "points": "AAAABBBBAAAABBBBAAAABBBBAAAABBBBAAAABBBBAAAABBBBABABABABABAA",
+  "expect": {
+   "sets": [
+    {
+     "games": [
+      7,
+      6
+     ],
+     "winner": 0,
+     "superTiebreak": false
+    }
+   ],
+   "games": [
+    0,
+    0
+   ],
+   "points": [
+    0,
+    0
+   ],
+   "tiebreak": false,
+   "superTiebreak": false,
+   "server": 0,
+   "winner": -1,
+   "deuceCount": 0,
+   "changeEnds": true,
+   "lastLog": "Set A · 7–6",
+   "banner": "Change ends"
+  }
+ },
+ {
+  "name": "super tiebreak after 1-1 sets",
+  "rules": {
+   "bestOf": 3,
+   "games": 6,
+   "deuce": "golden",
+   "superTb": true,
+   "tiebreak": true
+  },
+  "points": "AAAAAAAAAAAAAAAAAAAAAAAABBBBBBBBBBBBBBBBBBBBBBBB",
+  "expect": {
+   "sets": [
+    {
+     "games": [
+      6,
+      0
+     ],
+     "winner": 0,
+     "superTiebreak": false
+    },
+    {
+     "games": [
+      0,
+      6
+     ],
+     "winner": 1,
+     "superTiebreak": false
+    }
+   ],
+   "games": [
+    0,
+    0
+   ],
+   "points": [
+    0,
+    0
+   ],
+   "tiebreak": false,
+   "superTiebreak": true,
+   "server": 0,
+   "winner": -1,
+   "deuceCount": 0,
+   "changeEnds": false,
+   "lastLog": "Set B · 0–6",
+   "banner": "Super tiebreak · first to 10"
+  }
+ },
+ {
+  "name": "match won in super tiebreak 10-0",
+  "rules": {
+   "bestOf": 3,
+   "games": 6,
+   "deuce": "golden",
+   "superTb": true,
+   "tiebreak": true
+  },
+  "points": "AAAAAAAAAAAAAAAAAAAAAAAABBBBBBBBBBBBBBBBBBBBBBBBAAAAAAAAAA",
+  "expect": {
+   "sets": [
+    {
+     "games": [
+      6,
+      0
+     ],
+     "winner": 0,
+     "superTiebreak": false
+    },
+    {
+     "games": [
+      0,
+      6
+     ],
+     "winner": 1,
+     "superTiebreak": false
+    },
+    {
+     "games": [
+      10,
+      0
+     ],
+     "winner": 0,
+     "superTiebreak": true
+    }
+   ],
+   "games": [
+    0,
+    0
+   ],
+   "points": [
+    0,
+    0
+   ],
+   "tiebreak": false,
+   "superTiebreak": false,
+   "server": 1,
+   "winner": 0,
+   "deuceCount": 0,
+   "changeEnds": false,
+   "lastLog": "Match A",
+   "banner": "Match over"
+  }
+ },
+ {
+  "name": "short sets to 4",
+  "rules": {
+   "bestOf": 3,
+   "games": 4,
+   "deuce": "golden",
+   "superTb": true,
+   "tiebreak": true
+  },
+  "points": "AAAAAAAAAAAAAAAA",
+  "expect": {
+   "sets": [
+    {
+     "games": [
+      4,
+      0
+     ],
+     "winner": 0,
+     "superTiebreak": false
+    }
+   ],
+   "games": [
+    0,
+    0
+   ],
+   "points": [
+    0,
+    0
+   ],
+   "tiebreak": false,
+   "superTiebreak": false,
+   "server": 0,
+   "winner": -1,
+   "deuceCount": 0,
+   "changeEnds": false,
+   "lastLog": "Set A · 4–0",
+   "banner": "A serving"
+  }
+ },
+ {
+  "name": "best of 1, no tiebreak (advantage set)",
+  "rules": {
+   "bestOf": 1,
+   "games": 6,
+   "deuce": "golden",
+   "superTb": true,
+   "tiebreak": false
+  },
+  "points": "AAAABBBBAAAABBBBAAAABBBBAAAABBBBAAAABBBBAAAABBBBAAAAAAAA",
+  "expect": {
+   "sets": [
+    {
+     "games": [
+      8,
+      6
+     ],
+     "winner": 0,
+     "superTiebreak": false
+    }
+   ],
+   "games": [
+    0,
+    0
+   ],
+   "points": [
+    0,
+    0
+   ],
+   "tiebreak": false,
+   "superTiebreak": false,
+   "server": 0,
+   "winner": 0,
+   "deuceCount": 0,
+   "changeEnds": false,
+   "lastLog": "Match A",
+   "banner": "Match over"
+  }
+ }
+]
