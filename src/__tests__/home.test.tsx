@@ -1,6 +1,7 @@
 /** Screen tests: Home and the other tabs, Welcome, Settings. */
 import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import * as Sharing from 'expo-sharing';
+import * as Updates from 'expo-updates';
 import { Alert } from 'react-native';
 import Home from '@/app/(tabs)/index';
 import Matches from '@/app/(tabs)/matches';
@@ -200,5 +201,54 @@ describe('Settings', () => {
     expect(router.push).toHaveBeenCalledWith('/new-match');
     await fireEvent.press(btn('Show welcome screen'));
     expect(app().settings.onboarded).toBe(false);
+  });
+});
+
+describe('Settings › Check for updates', () => {
+  let alert: jest.SpyInstance;
+  beforeEach(() => {
+    alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+  });
+  afterEach(() => jest.restoreAllMocks()); // undoes replaceProperty(isEnabled)
+  const check = async () => {
+    await show(<Settings />);
+    await fireEvent.press(btn('Check for updates'));
+    await waitFor(() => expect(alert).toHaveBeenCalled());
+  };
+
+  it('shows the running version', async () => {
+    await show(<Settings />);
+    expect(screen.getByText(/built-in$/)).toBeTruthy(); // no OTA update applied yet
+  });
+
+  it('up to date: nothing is downloaded', async () => {
+    await check();
+    expect(alert).toHaveBeenCalledWith("You're up to date");
+    expect(Updates.fetchUpdateAsync).not.toHaveBeenCalled();
+  });
+
+  it('new update: downloads it, then Restart applies it', async () => {
+    jest.mocked(Updates.checkForUpdateAsync).mockResolvedValueOnce({ isAvailable: true } as never);
+    await check();
+    expect(Updates.fetchUpdateAsync).toHaveBeenCalled();
+    const [title, , buttons] = alert.mock.calls[0];
+    expect(title).toBe('Update ready');
+    expect(Updates.reloadAsync).not.toHaveBeenCalled();
+    buttons.find((b: { text: string }) => b.text === 'Restart').onPress();
+    expect(Updates.reloadAsync).toHaveBeenCalled();
+  });
+
+  it('development builds: explains updates are off', async () => {
+    jest.replaceProperty(Updates, 'isEnabled', false);
+    await check();
+    expect(alert.mock.calls[0][0]).toBe('Updates are off');
+    expect(Updates.checkForUpdateAsync).not.toHaveBeenCalled();
+  });
+
+  it('offline: shows an error instead of crashing', async () => {
+    jest.mocked(Updates.checkForUpdateAsync).mockRejectedValueOnce(new Error('network'));
+    await check();
+    expect(alert.mock.calls[0][0]).toBe('Could not check for updates');
+    expect(btn('Check for updates')).toBeTruthy(); // not stuck on "Checking…"
   });
 });

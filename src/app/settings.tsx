@@ -1,7 +1,9 @@
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { useRouter } from 'expo-router';
+import { useState } from 'react';
 import { Alert } from 'react-native';
+import { checkForUpdate, restartToUpdate, versionLabel } from '@/lib/updates';
 import { useApp } from '@/store';
 import { Button, GlassSurface, Header, Row, Screen, Section, Segmented, SwitchRow, T } from '@/ui';
 import { RulesEditor } from '@/ui/rules';
@@ -26,6 +28,25 @@ export default function Settings() {
   const backup = () => {
     const { matches, tournaments, settings } = useApp.getState();
     share('padelo-backup.json', JSON.stringify({ version: 1, settings, matches, tournaments }), 'application/json');
+  };
+  const [checking, setChecking] = useState(false);
+  const checkUpdates = async () => {
+    if (checking) return;
+    setChecking(true);
+    try {
+      const r = await checkForUpdate();
+      if (r === 'disabled') Alert.alert('Updates are off', 'Development builds load code from your computer.');
+      else if (r === 'none') Alert.alert("You're up to date");
+      else
+        Alert.alert('Update ready', 'Restart Padelo to use the new version.', [
+          { text: 'Later', style: 'cancel' },
+          { text: 'Restart', onPress: () => restartToUpdate() },
+        ]);
+    } catch {
+      Alert.alert('Could not check for updates', 'Check your connection and try again.');
+    } finally {
+      setChecking(false);
+    }
   };
   const exportAll = () => {
     const ts = Object.values(useApp.getState().tournaments).filter((t) => t.format !== 'AMERICANO');
@@ -97,6 +118,17 @@ export default function Settings() {
             onPress={backup}
           />
           <Row icon="add" title="New match" onPress={() => router.push('/new-match')} />
+        </GlassSurface>
+      </Section>
+      <Section title="App">
+        <GlassSurface>
+          <Row
+            icon="system-update"
+            title={checking ? 'Checking…' : 'Check for updates'}
+            label="Check for updates"
+            sub={versionLabel()}
+            onPress={checkUpdates}
+          />
         </GlassSurface>
       </Section>
       <T v="caption" style={{ textAlign: 'center' }}>

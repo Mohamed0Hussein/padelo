@@ -28,13 +28,59 @@ npx expo run:android   # or: npx expo run:ios (macOS only)
 
 The app uses its own native code (volume keys), so it runs as a **development build**, not in Expo Go. `expo run:android` builds and installs it. After that, `npm start` is enough while you edit JavaScript.
 
-To build in the cloud instead, use EAS:
+## Releasing
+
+Releases come in two kinds. Most changes only touch JavaScript and ship **over the air**, with no new build. Changes to native code need a **new build**, which you make on your own machine, so neither uses EAS Build quota.
+
+### JavaScript-only change → over-the-air update
 
 ```bash
-npx eas-cli@latest build --profile development --platform android   # dev build APK
-npx eas-cli@latest build --profile preview --platform android       # installable test APK
-npx eas-cli@latest build --profile production --platform android    # Play Store bundle
+npm run update -- --message "Fix tiebreak serve order"
 ```
+
+This publishes an [EAS Update](https://docs.expo.dev/eas-update/introduction/) to the `production` channel. Installed apps check on launch, download it in the background and use it from the next start. **Settings › Check for updates** fetches it straight away. EAS Update has its own free-plan limits (monthly users, bandwidth); see [expo.dev/pricing](https://expo.dev/pricing).
+
+### Native change → local build
+
+Native changes are new native libraries, `modules/`, `plugins/`, or plugin and permission settings in `app.json`.
+
+```bash
+npm run build:android            # signed APK to install directly
+npm run build:android -- --aab   # app bundle for the Play Store
+```
+
+The script runs `expo prebuild` and then Gradle, and prints the output path. Install the APK with `adb install -r <path>` or copy it to the phone.
+
+**Windows:** keep the project in a short folder such as `C:\dev\padelo`. Native libraries compile to paths that contain the project path twice, and the Android build tools fail beyond 260 characters. The script stops early with a message if the path is too long.
+
+`runtimeVersion` uses the **fingerprint** policy: a hash of the native code. An update only reaches builds with the same fingerprint, so a JavaScript update can never land on an app missing the native code it needs. When the native code changes, make a new build first, then publish updates for it.
+
+### Signing key (one-time setup)
+
+Without a key, release builds are signed with the debug key. That's fine for trying things out, but Android only installs an upgrade signed with the same key as the installed app, so set up your own key before giving the app to anyone.
+
+1. Create a key, choosing your own passwords when asked. Store the file somewhere safe outside the repo and back it up: if you lose it, you can't update the app.
+
+   ```bash
+   keytool -genkeypair -v -storetype PKCS12 -keystore padelo-upload.jks -alias padelo -keyalg RSA -keysize 2048 -validity 10000
+   ```
+
+   If the app was installed before from an EAS build, download that key instead (`npx eas-cli@latest credentials -p android`). Otherwise uninstall the old app before installing a locally signed one.
+
+2. Add the key to `~/.gradle/gradle.properties` (your user folder, never the repo):
+
+   ```properties
+   PADELO_UPLOAD_STORE_FILE=C:/path/to/padelo-upload.jks
+   PADELO_UPLOAD_STORE_PASSWORD=...
+   PADELO_UPLOAD_KEY_ALIAS=padelo
+   PADELO_UPLOAD_KEY_PASSWORD=...
+   ```
+
+`plugins/withReleaseSigning.js` reads these values. The build script warns when they're missing.
+
+### Cloud builds (optional)
+
+EAS Build still works and uses quota: `npx eas-cli@latest build --profile production --platform android`. Its `preview` and `production` profiles set the matching update channel.
 
 ## Scripts
 
@@ -46,6 +92,8 @@ npx eas-cli@latest build --profile production --platform android    # Play Store
 | `npm run lint` | ESLint on `src` and `modules` |
 | `npx tsc --noEmit` | Typecheck |
 | `npm run format` | Prettier on `src` |
+| `npm run build:android` | Signed release APK built on this machine (`-- --aab` for a bundle) |
+| `npm run update -- --message "..."` | Publish an over-the-air update to installed apps |
 
 Every push and pull request runs install, typecheck, lint and tests on GitHub Actions.
 

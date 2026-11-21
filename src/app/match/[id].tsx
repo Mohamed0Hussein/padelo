@@ -102,8 +102,20 @@ export default function Live() {
           </T>
         </GlassSurface>
         <View style={{ flex: 1, flexDirection: 'row', gap: 12 }}>
-          <ScorePad m={m} team={0} onPress={() => score(0)} onLongPress={hold} hint={hint ? 'Volume up' : 'Tap · hold = undo'} />
-          <ScorePad m={m} team={1} onPress={() => score(1)} onLongPress={hold} hint={hint ? 'Volume down' : 'Tap · hold = undo'} />
+          <ScorePad
+            m={m}
+            team={0}
+            onPress={() => score(0)}
+            onLongPress={hold}
+            hint={hint ? 'Volume up' : 'Tap · hold = undo'}
+          />
+          <ScorePad
+            m={m}
+            team={1}
+            onPress={() => score(1)}
+            onLongPress={hold}
+            hint={hint ? 'Volume down' : 'Tap · hold = undo'}
+          />
         </View>
         {!over && (
           <Button

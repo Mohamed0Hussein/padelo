@@ -29,6 +29,7 @@
     "expo-status-bar": "~58.0.5",
     "expo-symbols": "~58.0.5",
     "expo-system-ui": "~58.0.7",
+    "expo-updates": "~58.0.22",
     "expo-web-browser": "~58.1.0",
     "jest": "~30.5.2",
     "jest-expo": "~58.0.15",
@@ -64,7 +65,9 @@
     "web": "expo start --web",
     "lint": "eslint src modules",
     "test": "jest",
-    "format": "prettier --write \"src/**/*.{ts,tsx}\""
+    "format": "prettier --write \"src/**/*.{ts,tsx}\"",
+    "build:android": "node scripts/build-android.js",
+    "update": "npx eas-cli@latest update --channel production --environment production"
   },
   "private": true,
   "jest": {

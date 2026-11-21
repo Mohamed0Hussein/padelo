@@ -29,6 +29,13 @@ jest.mock('expo-screen-orientation', () => ({
   lockAsync: jest.fn(),
   OrientationLock: { LANDSCAPE: 'landscape', PORTRAIT_UP: 'portrait' },
 }));
+jest.mock('expo-updates', () => ({
+  isEnabled: true,
+  updateId: null,
+  checkForUpdateAsync: jest.fn(async () => ({ isAvailable: false })),
+  fetchUpdateAsync: jest.fn(async () => ({ isNew: true })),
+  reloadAsync: jest.fn(async () => {}),
+}));
 jest.mock('expo-clipboard', () => ({ setStringAsync: jest.fn() }));
 jest.mock('expo-sharing', () => ({ isAvailableAsync: jest.fn(async () => true), shareAsync: jest.fn() }));
 jest.mock('expo-file-system', () => {
