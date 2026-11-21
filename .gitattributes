@@ -1,0 +1,10 @@
+# LF everywhere, also on Windows checkouts. The expo-updates "fingerprint" hashes native
+# config files, so CRLF on Windows vs LF on the CI runner would make updates published
+# from one machine skip apps built on the other.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jks binary
+*.zip binary
+*.bat text eol=crlf
