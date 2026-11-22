@@ -7,10 +7,14 @@ Releases come in two kinds. Most changes only touch JavaScript and ship **over t
 ## JavaScript-only change → over-the-air update
 
 ```bash
-npm run update -- --message "Fix tiebreak serve order"
+npm run update -- --platform android --message "Fix tiebreak serve order"
 ```
 
 This publishes an [EAS Update](https://docs.expo.dev/eas-update/introduction/) to the `production` channel. Installed apps check on launch, download it in the background and use it from the next start. **Settings › Check for updates** fetches it straight away. EAS Update has its own free-plan limits (monthly users, bandwidth); see [expo.dev/pricing](https://expo.dev/pricing).
+
+Before publishing, check two things:
+- **`--platform android` is required.** Without it, the export also tries a web build, which fails on `expo-sqlite`.
+- **The output's "Runtime version" must match the installed build.** For a release, that's the `assets/fingerprint` file inside its APK. Publish from a clean, committed tree (no `*` after the commit ID): editing `package.json`, even just a script, changes the fingerprint, and the update then reaches no installed app.
 
 ## Native change → local build
 

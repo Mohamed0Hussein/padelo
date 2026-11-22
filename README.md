@@ -73,7 +73,7 @@ On Windows, clone into a short folder such as `C:\dev\padelo`. The Android build
 | `npm run lint` | ESLint |
 | `npx tsc --noEmit` | Typecheck |
 | `npm run build:android` | Signed release APK built on your machine (`-- --aab` for a Play Store bundle) |
-| `npm run update -- --message "..."` | Publish an over-the-air update |
+| `npm run update -- --platform android --message "..."` | Publish an over-the-air update |
 
 How releases, updates and signing work: [docs/RELEASING.md](docs/RELEASING.md).
 
