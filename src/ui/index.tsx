@@ -177,7 +177,8 @@ export function Screen({
       <View style={{ paddingTop: insets.top }}>{header}</View>
       {scroll ? (
         <ScrollView
-          contentContainerStyle={{ padding: pad ? 16 : 0, paddingBottom: 24, gap: 20 }}
+          // without a footer, the end of the list must clear the system navigation bar
+          contentContainerStyle={{ padding: pad ? 16 : 0, paddingBottom: 24 + (footer ? 0 : insets.bottom), gap: 20 }}
           keyboardShouldPersistTaps="handled"
         >
           {children}

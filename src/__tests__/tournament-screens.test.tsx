@@ -229,7 +229,7 @@ describe('Tournament results', () => {
     expect(files.get('file:///cache/Friday_Cup.csv')?.split('\n')).toHaveLength(4);
 
     await fireEvent.press(btn('Home'));
-    expect(router.replace).toHaveBeenCalledWith('/');
+    expect(router.dismissTo).toHaveBeenCalledWith('/');
   });
 });
 

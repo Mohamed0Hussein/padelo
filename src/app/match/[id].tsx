@@ -193,7 +193,7 @@ export default function Live() {
           onPress={() => {
             useApp.getState().deleteMatch(id);
             setSheet(null);
-            router.replace('/');
+            router.dismissTo('/');
           }}
         />
       </Sheet>

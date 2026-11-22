@@ -183,6 +183,15 @@ describe('Live scoring screen', () => {
     expect(app().matches[id].endedAt).toBeUndefined();
   });
 
+  it('discard deletes the match and returns to the existing Home screen', async () => {
+    const id = await open();
+    await fireEvent.press(padA());
+    await fireEvent.press(btn('End & save'));
+    await fireEvent.press(btn('Discard match'));
+    expect(app().matches[id]).toBeUndefined();
+    expect(mockRouter.dismissTo).toHaveBeenCalledWith('/');
+  });
+
   it('shows a message for an unknown match id', async () => {
     await show(<Live />, { id: 'nope' });
     expect(screen.getByText('Match not found.')).toBeTruthy();

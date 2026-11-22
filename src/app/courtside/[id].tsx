@@ -35,7 +35,9 @@ export default function Courtside() {
         flex: 1,
         paddingTop: Math.max(insets.top, 8),
         paddingBottom: Math.max(insets.bottom, 8),
-        paddingHorizontal: Math.max(insets.left, 16),
+        // landscape: the system navigation bar sits on the left or right edge
+        paddingLeft: Math.max(insets.left, 16),
+        paddingRight: Math.max(insets.right, 16),
       }}
     >
       <GlowBackground />

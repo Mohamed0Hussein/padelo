@@ -3,6 +3,7 @@ export const router = {
   replace: jest.fn(),
   push: jest.fn(),
   back: jest.fn(),
+  dismissTo: jest.fn(),
   canGoBack: () => true,
 };
 export const params: { current: Record<string, string> } = { current: {} };

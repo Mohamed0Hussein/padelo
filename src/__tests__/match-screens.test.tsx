@@ -110,7 +110,7 @@ describe('Share result', () => {
     await fireEvent.press(screen.getByRole('radio', { name: 'Card style: Minimal' }));
     expect(screen.getByRole('radio', { name: 'Card style: Minimal' }).props.accessibilityState.selected).toBe(true);
     await fireEvent.press(btn('Home'));
-    expect(router.replace).toHaveBeenCalledWith('/');
+    expect(router.dismissTo).toHaveBeenCalledWith('/');
   });
 
   it('tournament match goes back to its tournament and shows the round', async () => {
@@ -120,7 +120,7 @@ describe('Share result', () => {
     await show(<Result />, { id });
     expect(screen.getByText('Semi-finals')).toBeTruthy();
     await fireEvent.press(btn('Back to tournament'));
-    expect(router.replace).toHaveBeenCalledWith(`/tournament/${tid}`);
+    expect(router.dismissTo).toHaveBeenCalledWith(`/tournament/${tid}`);
   });
 
   it('works for an unsaved match and for an unknown id', async () => {

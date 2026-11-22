@@ -61,7 +61,7 @@ export default function Result() {
             compact
             icon={m.tournamentId ? 'emoji-events' : 'home'}
             label={m.tournamentId ? 'Back to tournament' : 'Home'}
-            onPress={() => (m.tournamentId ? router.replace(`/tournament/${m.tournamentId}`) : router.replace('/'))}
+            onPress={() => (m.tournamentId ? router.dismissTo(`/tournament/${m.tournamentId}`) : router.dismissTo('/'))}
           />
         </View>
       }

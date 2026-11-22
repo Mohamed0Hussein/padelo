@@ -96,7 +96,7 @@ export default function TournamentResults() {
       </Section>
 
       <Button icon="download" label="Export CSV" onPress={exportCsv} />
-      <Button kind="outline" icon="home" label="Home" onPress={() => router.replace('/')} />
+      <Button kind="outline" icon="home" label="Home" onPress={() => router.dismissTo('/')} />
     </Screen>
   );
 }
