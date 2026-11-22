@@ -97,7 +97,7 @@ export function ScorePad({
       disabled={locked || done}
       onPress={onPress}
       onLongPress={onLongPress}
-      accessibilityHint={onLongPress ? 'Hold to undo the last point' : undefined}
+      accessibilityHint={onLongPress ? `Hold to take ${name}'s last point away` : undefined}
       style={({ pressed }) => ({ flex: 1, opacity: pressed ? 0.85 : locked ? 0.5 : 1 })}
     >
       <GlassSurface

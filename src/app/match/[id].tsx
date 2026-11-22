@@ -1,9 +1,9 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import * as Haptics from 'expo-haptics';
 import { useState } from 'react';
 import { View } from 'react-native';
 import { banner } from '@/engine';
 import { useScoringControls } from '@/lib/scoring';
+import { faultLine } from '@/lib/serve';
 import { teamLabel } from '@/lib/util';
 import { useApp } from '@/store';
 import { useTheme } from '@/theme';
@@ -19,7 +19,7 @@ export default function Live() {
   const { undoPoint, fault, restart, setMatchRules, endAndSave, setSettings } = useApp.getState();
   const settings = useApp((s) => s.settings);
   const [sheet, setSheet] = useState<null | 'rules' | 'history' | 'end'>(null);
-  const { score, hint } = useScoringControls(id);
+  const { score, take, hint } = useScoringControls(id);
 
   if (!m)
     return (
@@ -29,11 +29,6 @@ export default function Live() {
     );
   const b = banner(settings.changeEndsReminder ? m.state : { ...m.state, changeEnds: false });
   const over = m.state.winner >= 0;
-  const hold = () => {
-    if (!m.state.history.length && !m.pendingFault) return;
-    if (settings.haptics) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    undoPoint(id);
-  };
   const finish = () => {
     endAndSave(id);
     router.replace(`/result/${id}`);
@@ -61,7 +56,7 @@ export default function Live() {
             kind="outline"
             icon="undo"
             label="Undo"
-            disabled={!m.state.history.length}
+            disabled={!m.state.history.length && !m.pendingFault}
             onPress={() => undoPoint(id)}
             style={{ flex: 1 }}
           />
@@ -106,15 +101,15 @@ export default function Live() {
             m={m}
             team={0}
             onPress={() => score(0)}
-            onLongPress={hold}
-            hint={hint ? 'Volume up' : 'Tap · hold = undo'}
+            onLongPress={() => take(0)}
+            hint={hint ? 'Volume up · hold −1' : 'Tap +1 · hold −1'}
           />
           <ScorePad
             m={m}
             team={1}
             onPress={() => score(1)}
-            onLongPress={hold}
-            hint={hint ? 'Volume down' : 'Tap · hold = undo'}
+            onLongPress={() => take(1)}
+            hint={hint ? 'Volume down · hold −1' : 'Tap +1 · hold −1'}
           />
         </View>
         {!over && (
@@ -126,7 +121,7 @@ export default function Live() {
           />
         )}
         <T v="caption" style={{ textAlign: 'center' }}>
-          Faults {m.faults?.join(' – ') ?? '0 – 0'} · Double faults {m.doubleFaults?.join(' – ') ?? '0 – 0'}
+          {faultLine(m)}
         </T>
       </View>
 

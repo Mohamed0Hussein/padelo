@@ -50,7 +50,15 @@ export interface Match {
   doubleFaults?: [number, number];
   /** first serve was a fault, next fault = double fault */
   pendingFault?: boolean;
+  /** every serve fault in order, with who served it ('double' = the second fault of a double fault) */
+  faultLog?: FaultEntry[];
   lastDf?: { len: number; t: Team };
+}
+
+export interface FaultEntry {
+  kind: 'fault' | 'double';
+  team: Team;
+  player: string;
 }
 
 export interface TMatch {

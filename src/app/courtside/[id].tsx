@@ -5,9 +5,10 @@ import { Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { banner } from '@/engine';
 import { useScoringControls } from '@/lib/scoring';
+import { faultLine } from '@/lib/serve';
 import { useApp } from '@/store';
 import { useTheme } from '@/theme';
-import { GlowBackground, Icon, IconBtn, T } from '@/ui';
+import { Button, GlowBackground, Icon, IconBtn, T } from '@/ui';
 import { ScorePad, ScoreTable } from '@/ui/match';
 
 export default function Courtside() {
@@ -18,7 +19,7 @@ export default function Courtside() {
   const m = useApp((s) => s.matches[id]);
   const settings = useApp((s) => s.settings);
   const [locked, setLocked] = useState(false);
-  const { score, hint } = useScoringControls(id, { locked });
+  const { score, take, hint } = useScoringControls(id, { locked });
 
   useEffect(() => {
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
@@ -28,6 +29,7 @@ export default function Courtside() {
   }, []);
 
   if (!m) return null;
+  const over = m.state.winner >= 0;
   const b = banner(settings.changeEndsReminder ? m.state : { ...m.state, changeEnds: false });
   return (
     <View
@@ -71,7 +73,7 @@ export default function Courtside() {
           icon="undo"
           label="Undo"
           filled
-          disabled={!m.state.history.length || locked}
+          disabled={(!m.state.history.length && !m.pendingFault) || locked}
           onPress={() => useApp.getState().undoPoint(id)}
         />
       </View>
@@ -82,11 +84,25 @@ export default function Courtside() {
           big={132}
           locked={locked}
           onPress={() => score(0)}
-          onLongPress={() => useApp.getState().undoPoint(id)}
-          hint={locked ? 'Locked' : hint ? 'Volume up' : 'Tap for point'}
+          onLongPress={() => take(0)}
+          hint={locked ? 'Locked' : hint ? 'Volume up · hold −1' : 'Tap +1 · hold −1'}
         />
-        <View style={{ width: 280, justifyContent: 'center' }}>
+        <View style={{ width: 280, justifyContent: 'center', gap: 10 }}>
           <ScoreTable m={m} compact />
+          {!over && (
+            <Button
+              compact
+              kind={m.pendingFault ? 'danger' : 'outline'}
+              icon="report-problem"
+              label={m.pendingFault ? '2nd fault → double' : 'Fault'}
+              a11y={m.pendingFault ? '2nd fault → double fault' : 'Fault'}
+              disabled={locked}
+              onPress={() => useApp.getState().fault(id)}
+            />
+          )}
+          <T v="caption" style={{ textAlign: 'center' }} numberOfLines={2}>
+            {faultLine(m)}
+          </T>
         </View>
         <ScorePad
           m={m}
@@ -94,8 +110,8 @@ export default function Courtside() {
           big={132}
           locked={locked}
           onPress={() => score(1)}
-          onLongPress={() => useApp.getState().undoPoint(id)}
-          hint={locked ? 'Locked' : hint ? 'Volume down' : 'Tap for point'}
+          onLongPress={() => take(1)}
+          hint={locked ? 'Locked' : hint ? 'Volume down · hold −1' : 'Tap +1 · hold −1'}
         />
       </View>
     </View>

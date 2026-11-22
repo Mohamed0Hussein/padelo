@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { DEFAULT_RULES, init, point, undo, type MatchRules, type Team } from '@/engine';
+import { DEFAULT_RULES, init, point, removePoint, undo, type MatchRules, type Team } from '@/engine';
+import { servingPlayer } from '@/lib/serve';
 import { deleteDoc, loadAll, openDb, saveDoc } from '@/db';
 import { americanoRounds } from '@/tournament/americano';
 import { buildFixtures, fillKnockout, groupStageDone, propagate } from '@/tournament/draw';
@@ -38,6 +39,8 @@ interface App {
   startMatch: (teams: [TeamRef, TeamRef], rules: MatchRules, extra?: Partial<Match>) => string;
   score: (id: string, team: Team) => void;
   undoPoint: (id: string) => void;
+  /** take `team`'s most recent point away (hold on that team's pad) */
+  removePoint: (id: string, team: Team) => void;
   fault: (id: string) => void;
   restart: (id: string) => void;
   setMatchRules: (id: string, rules: MatchRules) => void;
@@ -129,23 +132,41 @@ export const useApp = create<App>((set, get) => {
       const t = m.state.server;
       const bump = (a: [number, number] = [0, 0]): [number, number] => (t === 0 ? [a[0] + 1, a[1]] : [a[0], a[1] + 1]);
       const faults = bump(m.faults);
-      if (!m.pendingFault) return putMatch({ ...m, faults, pendingFault: true });
+      const record = (kind: 'fault' | 'double') => [...(m.faultLog ?? []), { kind, team: t, player: servingPlayer(m) }];
+      if (!m.pendingFault) return putMatch({ ...m, faults, pendingFault: true, faultLog: record('fault') });
       const state = point(m.state, t === 0 ? 1 : 0);
       putMatch({
         ...m,
         state,
         faults,
         doubleFaults: bump(m.doubleFaults),
+        faultLog: record('double'),
         pendingFault: false,
         lastDf: { len: state.history.length, t },
       });
+    },
+    removePoint: (id, team) => {
+      const m = get().matches[id];
+      if (!m || m.endedAt) return;
+      const state = removePoint(m.state, team);
+      if (state === m.state) return;
+      // the serve may have changed hands, so a pending first-serve fault no longer applies;
+      // the fault itself stays in the record
+      putMatch({ ...m, state, pendingFault: false, lastDf: undefined });
     },
     undoPoint: (id) => {
       const m = get().matches[id];
       if (!m) return;
       const dec = (a: [number, number] = [0, 0], t: Team): [number, number] =>
         t === 0 ? [Math.max(0, a[0] - 1), a[1]] : [a[0], Math.max(0, a[1] - 1)];
-      if (m.pendingFault) return putMatch({ ...m, pendingFault: false, faults: dec(m.faults, m.state.server) });
+      const dropLastFault = () => (m.faultLog ?? []).slice(0, -1);
+      if (m.pendingFault)
+        return putMatch({
+          ...m,
+          pendingFault: false,
+          faults: dec(m.faults, m.state.server),
+          faultLog: dropLastFault(),
+        });
       const df = m.lastDf;
       if (df && df.len === m.state.history.length)
         return putMatch({
@@ -153,6 +174,7 @@ export const useApp = create<App>((set, get) => {
           state: undo(m.state),
           faults: dec(m.faults, df.t),
           doubleFaults: dec(m.doubleFaults, df.t),
+          faultLog: dropLastFault(),
           pendingFault: true,
           lastDf: undefined,
         });

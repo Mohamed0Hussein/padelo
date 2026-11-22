@@ -103,12 +103,24 @@ describe('Live scoring screen', () => {
     expect(padB().props.accessibilityLabel).toBe('Point for Carl / Dani. Current 30');
   });
 
-  it('holding a pad undoes the last point', async () => {
+  it("holding a pad takes that team's last point away, even if the other team scored after it", async () => {
     const id = await open();
     await fireEvent.press(padA());
-    await fireEvent(padB(), 'longPress');
-    expect(app().matches[id].state.points).toEqual([0, 0]);
+    await fireEvent.press(padA());
+    await fireEvent.press(padB()); // 30–15
+    expect(screen.getAllByText('Tap +1 · hold −1')).toHaveLength(2);
+    await fireEvent(padA(), 'longPress');
+    expect(app().matches[id].state.points).toEqual([1, 1]); // 15–15
     expect(Haptics.impactAsync).toHaveBeenLastCalledWith('heavy');
+  });
+
+  it('holding the pad of a team with no points does nothing', async () => {
+    const id = await open();
+    await fireEvent.press(padA());
+    const before = app().matches[id].state;
+    await fireEvent(padB(), 'longPress');
+    expect(app().matches[id].state).toBe(before);
+    expect(Haptics.impactAsync).not.toHaveBeenCalledWith('heavy');
   });
 
   it('wires keep-awake, haptics per point and the spoken score', async () => {
@@ -134,7 +146,34 @@ describe('Live scoring screen', () => {
     expect(btn('2nd fault → double fault')).toBeTruthy();
     await fireEvent.press(btn('2nd fault → double fault'));
     expect(app().matches[id].state.points).toEqual([0, 1]);
-    expect(screen.getByText('Faults 2 – 0 · Double faults 1 – 0')).toBeTruthy();
+    // recorded against the player who served it
+    expect(app().matches[id].faultLog).toEqual([
+      { kind: 'fault', team: 0, player: 'Ali' },
+      { kind: 'double', team: 0, player: 'Ali' },
+    ]);
+    expect(screen.getByText('Faults · Ali 2 (1 double)')).toBeTruthy();
+  });
+
+  it('faults follow the server: next game the other team, then the partner', async () => {
+    await open();
+    expect(screen.getByText('No faults yet')).toBeTruthy();
+    await fireEvent.press(btn('Fault'));
+    for (let i = 0; i < 4; i++) await fireEvent.press(padA()); // game 1: Ali served
+    await fireEvent.press(btn('Fault'));
+    for (let i = 0; i < 4; i++) await fireEvent.press(padA()); // game 2: Carl served
+    await fireEvent.press(btn('Fault')); // game 3: Badr serves
+    expect(screen.getByText('Faults · Ali 1 · Carl 1 · Badr 1')).toBeTruthy();
+  });
+
+  it('undoing a double fault takes its record away too', async () => {
+    const id = await open();
+    await fireEvent.press(btn('Fault'));
+    await fireEvent.press(btn('2nd fault → double fault'));
+    await fireEvent.press(btn('Undo'));
+    expect(app().matches[id].faultLog).toEqual([{ kind: 'fault', team: 0, player: 'Ali' }]);
+    await fireEvent.press(btn('Undo'));
+    expect(app().matches[id].faultLog).toEqual([]);
+    expect(screen.getByText('No faults yet')).toBeTruthy();
   });
 
   it('40–40 rule switcher changes the rule mid-match', async () => {

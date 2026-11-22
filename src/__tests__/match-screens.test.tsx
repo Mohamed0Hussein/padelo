@@ -25,18 +25,43 @@ describe('Courtside', () => {
     expect(ScreenOrientation.lockAsync).toHaveBeenLastCalledWith('portrait');
   });
 
-  it('pads score, hold undoes, Undo button undoes', async () => {
+  it("pads score, hold takes that team's point away, Undo button undoes", async () => {
     const id = friendly(['Ali', 'Badr'], ['Carl', 'Dani']);
     await show(<Courtside />, { id });
-    expect(screen.getAllByText('Tap for point')).toHaveLength(2);
+    expect(screen.getAllByText('Tap +1 · hold −1')).toHaveLength(2);
     await fireEvent.press(padA());
     await fireEvent.press(padB());
     await fireEvent.press(padB());
     expect(app().matches[id].state.points).toEqual([1, 2]);
-    await fireEvent(padA(), 'longPress');
-    expect(app().matches[id].state.points).toEqual([1, 1]);
+    await fireEvent(padA(), 'longPress'); // A's point, scored before B's two
+    expect(app().matches[id].state.points).toEqual([0, 2]);
     await fireEvent.press(btn('Undo'));
-    expect(app().matches[id].state.points).toEqual([1, 0]);
+    expect(app().matches[id].state.points).toEqual([0, 1]);
+  });
+
+  it('Fault button records faults by server, and is off while locked', async () => {
+    const id = friendly(['Ali', 'Badr'], ['Carl', 'Dani']);
+    await show(<Courtside />, { id });
+    expect(screen.getByText('No faults yet')).toBeTruthy();
+    await fireEvent.press(btn('Fault'));
+    expect(btn('2nd fault → double fault')).toBeTruthy();
+    await fireEvent.press(btn('2nd fault → double fault'));
+    expect(app().matches[id].state.points).toEqual([0, 1]);
+    expect(screen.getByText('Faults · Ali 2 (1 double)')).toBeTruthy();
+
+    await fireEvent.press(btn('Lock pads'));
+    expect(btn('Fault').props.accessibilityState.disabled).toBe(true);
+  });
+
+  it('Undo is available for a pending first-serve fault', async () => {
+    const id = friendly(['Ali', 'Badr'], ['Carl', 'Dani']);
+    await show(<Courtside />, { id });
+    expect(btn('Undo').props.accessibilityState.disabled).toBe(true);
+    await fireEvent.press(btn('Fault'));
+    expect(btn('Undo').props.accessibilityState.disabled).toBe(false);
+    await fireEvent.press(btn('Undo'));
+    expect(app().matches[id].pendingFault).toBe(false);
+    expect(app().matches[id].faultLog).toEqual([]);
   });
 
   it('lock disables pads and undo until unlocked', async () => {

@@ -7,18 +7,11 @@ import { Platform } from 'react-native';
 import { startVolumeKeys } from '../../modules/volume-keys';
 import { pointLabel, type ScoringState, type Team } from '@/engine';
 import { useApp } from '@/store';
+import { servingPlayer } from './serve';
 import type { Match } from './types';
 import { firstName } from './util';
 
-/** Which of the serving team's two players serves right now (they alternate service games). */
-export function servingPlayer(m: Match): string {
-  const s = m.state;
-  const played =
-    s.sets.filter((x) => !x.superTiebreak).reduce((n, x) => n + x.games[0] + x.games[1], 0) + s.games[0] + s.games[1];
-  const nth = Math.floor((s.server === 0 ? played : played - 1) / 2);
-  const ps = m.teams[s.server].players.filter(Boolean);
-  return ps[Math.max(0, nth) % ps.length] ?? '';
-}
+export { servingPlayer };
 
 function sentence(m: Match): string {
   const s: ScoringState = m.state;
@@ -36,6 +29,20 @@ function sentence(m: Match): string {
 export function useScoringControls(id: string, opts: { locked?: boolean } = {}) {
   const settings = useApp((s) => s.settings);
   const scoreRaw = useApp((s) => s.score);
+  const removeRaw = useApp((s) => s.removePoint);
+
+  /** Hold on a team's pad: take that team's most recent point away. */
+  const take = useCallback(
+    (team: Team) => {
+      if (opts.locked) return;
+      const before = useApp.getState().matches[id];
+      if (!before || before.endedAt) return;
+      removeRaw(id, team);
+      const changed = useApp.getState().matches[id].state !== before.state;
+      if (changed && settings.haptics) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    },
+    [id, opts.locked, removeRaw, settings.haptics],
+  );
 
   const score = useCallback(
     (team: Team) => {
@@ -71,5 +78,5 @@ export function useScoringControls(id: string, opts: { locked?: boolean } = {}) 
     }, [settings.keepAwake, settings.volumeKeys, opts.locked, score]),
   );
 
-  return { score, hint: settings.volumeKeys && Platform.OS === 'android' };
+  return { score, take, hint: settings.volumeKeys && Platform.OS === 'android' };
 }

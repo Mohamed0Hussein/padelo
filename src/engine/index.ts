@@ -149,6 +149,26 @@ export function undo(s: ScoringState): ScoringState {
   return { ...s, ...prev, history: s.history.slice(0, -1) };
 }
 
+/** Who won each point so far, oldest first (recovered from the undo history). */
+export function pointWinners(s: ScoringState): Team[] {
+  const n = s.history.length;
+  // history[k + 1] is the state right after point k; its newest log entry names the winner
+  return Array.from({ length: n }, (_, k) => (k < n - 1 ? s.history[k + 1].log[0].team : s.log[0].team));
+}
+
+/**
+ * Takes `team`'s most recent point away, even if the other team scored after it, by replaying
+ * every other point. Returns the same state when `team` has no points.
+ * ponytail: replays with the current rules; a 40–40 rule changed mid-match applies from the start.
+ */
+export function removePoint(s: ScoringState, team: Team): ScoringState {
+  const winners = pointWinners(s);
+  const i = winners.lastIndexOf(team);
+  if (i < 0) return s;
+  winners.splice(i, 1);
+  return winners.reduce((st, t) => point(st, t), init(s.rules, s.names));
+}
+
 export function banner(s: ScoringState): Banner {
   const R = s.rules;
   const [a, b] = s.points;
