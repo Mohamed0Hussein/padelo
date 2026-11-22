@@ -42,3 +42,7 @@ yarn-error.*
 
 # local native module build output
 modules/*/android/build/
+
+# EAS credentials download (keystore passwords): never commit
+credentials.json
+/credentials/
