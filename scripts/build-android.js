@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 /**
  * Builds a signed release APK on this machine (no EAS Build quota).
- * Usage: npm run build:android            -> APK, for installing directly
- *        npm run build:android -- --aab   -> app bundle, for the Play Store
+ * Usage: npm run build:android                  -> APK for phones (arm64 only)
+ *        npm run build:android -- --all-abis     -> APK for every CPU type (emulators, old 32-bit phones)
+ *        npm run build:android -- --aab         -> app bundle for the Play Store (always every CPU type;
+ *                                                  the Store gives each device only its own)
  *
  * Runs `expo prebuild` (which may recreate android/ when native config changes),
  * restores android/local.properties if needed, then Gradle.
@@ -20,6 +22,9 @@ const path = require('path');
 const root = path.join(__dirname, '..');
 const android = path.join(root, 'android');
 const aab = process.argv.includes('--aab');
+// Nearly every phone in use is arm64; compiling one CPU type instead of four makes the
+// native build ~4x shorter and the APK much smaller.
+const arm64Only = !aab && !process.argv.includes('--all-abis');
 const win = process.platform === 'win32';
 const MAX_WIN_ROOT = 20; // ponytail: rough limit measured with react-native-worklets; adjust if a deeper lib fails
 
@@ -60,7 +65,9 @@ if (!signed)
 
 // full path: some Windows shells don't run programs from the current folder
 const gradlew = path.join(android, win ? 'gradlew.bat' : 'gradlew');
-run(win ? `"${gradlew}"` : gradlew, [aab ? 'bundleRelease' : 'assembleRelease'], android);
+const gradleArgs = [aab ? 'bundleRelease' : 'assembleRelease'];
+if (arm64Only) gradleArgs.push('-PreactNativeArchitectures=arm64-v8a');
+run(win ? `"${gradlew}"` : gradlew, gradleArgs, android);
 
 const out = aab ? 'app/build/outputs/bundle/release/app-release.aab' : 'app/build/outputs/apk/release/app-release.apk';
-console.log(`\nBuilt ${path.join(android, out)}${signed ? '' : ' (debug-signed)'}`);
+console.log(`\nBuilt ${path.join(android, out)}${arm64Only ? ' (arm64 only)' : ''}${signed ? '' : ' (debug-signed)'}`);

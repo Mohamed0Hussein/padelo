@@ -45,9 +45,12 @@ This publishes an [EAS Update](https://docs.expo.dev/eas-update/introduction/) t
 Native changes are new native libraries, `modules/`, `plugins/`, or plugin and permission settings in `app.json`.
 
 ```bash
-npm run build:android            # signed APK to install directly
-npm run build:android -- --aab   # app bundle for the Play Store
+npm run build:android                # signed APK for phones (arm64 only)
+npm run build:android -- --all-abis  # APK for every CPU type (emulators, old 32-bit phones)
+npm run build:android -- --aab       # app bundle for the Play Store
 ```
+
+APKs are built for arm64 only by default. Nearly every phone in use is arm64, and building one CPU type instead of four makes the native build much faster and the APK much smaller. App bundles always include every CPU type, because the Play Store gives each device only the code it needs.
 
 The script runs `expo prebuild` and then Gradle, and prints the output path. Install the APK with `adb install -r <path>` or copy it to the phone.
 
@@ -126,7 +129,7 @@ EAS Build still works and uses quota: `npx eas-cli@latest build --profile produc
 | `npm run lint` | ESLint on `src` and `modules` |
 | `npx tsc --noEmit` | Typecheck |
 | `npm run format` | Prettier on `src` |
-| `npm run build:android` | Signed release APK built on this machine (`-- --aab` for a bundle) |
+| `npm run build:android` | Signed release APK (arm64) built on this machine (`-- --aab` for a bundle, `-- --all-abis` for every CPU type) |
 | `npm run update -- --message "..."` | Publish an over-the-air update to installed apps |
 
 Every push and pull request runs install, typecheck, lint and tests on GitHub Actions.
